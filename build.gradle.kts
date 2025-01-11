@@ -1,9 +1,9 @@
 plugins {
-	checkstyle
-	java
-	jacoco
-	id("org.springframework.boot") version libs.versions.springBoot.get()
-	id("io.spring.dependency-management") version "1.1.6"
+    checkstyle
+    java
+    jacoco
+    id("org.springframework.boot") version libs.versions.springBoot.get()
+    id("io.spring.dependency-management") version "1.1.6"
     id("com.github.spotbugs") version "6.0.26"
 }
 
@@ -33,25 +33,29 @@ tasks.jacocoTestCoverageVerification {
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	compileOnly(libs.lombok)
-	annotationProcessor(libs.lombok)
-	implementation(libs.springWeb)
-	testImplementation(libs.springTest)
-	testRuntimeOnly(libs.junitPlatformLauncher)
-	testImplementation(libs.junitJupiter)
-	testImplementation(libs.assertjCore)
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+    implementation(libs.springWeb)
+    testImplementation(libs.springTest)
+    testRuntimeOnly(libs.junitPlatformLauncher)
+    testImplementation(libs.junitJupiter)
+    testImplementation(libs.assertjCore)
+}
+
+checkstyle {
+    checkstyle.configFile = rootProject.file("config/checkstyle/checkstyle.xml")
 }
 
 tasks.withType<Test> {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 tasks.javadoc {
-    destinationDir = file("$buildDir/docs/javadoc")
+    destinationDir = rootProject.file("build/docs/javadoc")
 }
 
 tasks.register<Zip>("zipJavaDoc") {
@@ -69,6 +73,19 @@ tasks.spotbugsMain {
     reports.create("html") {
         required = true
         outputLocation.set(layout.buildDirectory.file("reports/spotbugs/spotbugs.html"))
+    }
+}
+
+tasks.register("jarInfo") {
+    group = "Build"
+    description = "Warning about a fat jar file"
+    dependsOn("jar")
+    doLast {
+        val jarSize = file("build/libs/DevOps-1.0.0.jar").length() / (1024 * 1024)
+        if (jarSize > 5) {
+            println("WARNING jar exceeds recommended size: ${jarSize} MB")
+        }
+        println("Current size jar file: ${jarSize} MB")
     }
 }
 
